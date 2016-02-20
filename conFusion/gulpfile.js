@@ -35,7 +35,7 @@ gulp.task('default', ['clean'], function() {
 });
 
 gulp.task('usemin',['jshint'], function () {
-  return gulp.src('app/**/dishdetail.html')
+  return gulp.src('app/**/*.html')
       .pipe(foreach(function(stream, file){
         return stream
         .pipe(usemin({
@@ -83,7 +83,7 @@ gulp.task('browser-sync', ['default'], function () {
    browserSync.init(files, {
       server: {
          baseDir: "dist",
-         index: "dishdetail.html"
+         index: "contactus.html"
       }
    });
         // Watch any files in dist/, reload on change
