@@ -12,7 +12,8 @@ var gulp = require('gulp'),
     changed = require('gulp-changed'),
     rev = require('gulp-rev'),
     browserSync = require('browser-sync'),
-    del = require('del');
+    del = require('del'),
+    foreach = require('gulp-foreach');
 
 var ngannotate = require('gulp-ng-annotate');
 
@@ -34,10 +35,13 @@ gulp.task('default', ['clean'], function() {
 });
 
 gulp.task('usemin',['jshint'], function () {
-  return gulp.src('./app/contactus.html')
-      .pipe(usemin({
-        css:[minifycss(),rev()],
-        js: [ngannotate(),uglify(),rev()]
+  return gulp.src('app/**/dishdetail.html')
+      .pipe(foreach(function(stream, file){
+        return stream
+        .pipe(usemin({
+          css:[minifycss(),rev()],
+          js: [ngannotate(),uglify(),rev()]
+        }));
       }))
       .pipe(gulp.dest('dist/'));
 });
@@ -79,7 +83,7 @@ gulp.task('browser-sync', ['default'], function () {
    browserSync.init(files, {
       server: {
          baseDir: "dist",
-         index: "contactus.html"
+         index: "dishdetail.html"
       }
    });
         // Watch any files in dist/, reload on change
