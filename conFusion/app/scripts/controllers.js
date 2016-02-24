@@ -10,19 +10,15 @@ angular.module('confusionApp')
   $scope.showMenu = false;
   $scope.message = "Loading ...";
 
-  $scope.dishes = [];
-  menuFactory.getDishes()
-    .then(
-      function(response) {
-        $scope.dishes = response.data;
-        $scope.showMenu = true;
-      },
-      function(response) {
-        console.log(response);
-        $scope.message = "Error: " + response.status + " " + response.statusText;
-      }
-    );
-
+  menuFactory.getDishes().query(
+    function(response) {
+      $scope.dishes = response;
+      console.log($scope.dishes);
+      $scope.showMenu = true;
+    },
+    function(response) {
+      $scope.message = "Error: "+response.status + " " + response.statusText;
+    });
 
   $scope.select = function(setTab) {
     $scope.tab = setTab;
@@ -101,10 +97,9 @@ angular.module('confusionApp')
   $scope.showDish = false;
   $scope.message = "Loading ...";
 
-  menuFactory.getDish(parseInt($stateParams.id, 10))
-  .then(
+  menuFactory.getDishes().get({id:parseInt($stateParams.id, 10)}).$promise.then(
     function(response){
-      $scope.dish = response.data;
+      $scope.dish = response;
       $scope.showDish = true;
     },
     function(response){
@@ -114,30 +109,30 @@ angular.module('confusionApp')
 
 }])
 
-.controller('DishCommentController', ['$scope', function($scope) {
+.controller('DishCommentController', ['$scope', 'menuFactory', function($scope, menuFactory) {
 
-  $scope.mycomment = {
-    rating: 5,
-    comment: "",
-    author: "",
-    date: ""
-  };
+  $scope.input = { name:"", rating:"5", comment:""};
 
   $scope.submitComment = function() {
 
-    $scope.mycomment.date = new Date().toISOString();
-    console.log($scope.mycomment);
+    var today = new Date().toISOString();
+
+    console.log($scope.input);
+
+    $scope.mycomment = {
+      rating: $scope.input.rating,
+      comment: $scope.input.comment,
+      author: $scope.input.name,
+      date: today
+    };
 
     $scope.dish.comments.push($scope.mycomment);
 
+    menuFactory.getDishes().update({id:$scope.dish.id},$scope.dish);
+
     $scope.commentForm.$setPristine();
 
-    $scope.mycomment = {
-      rating: 5,
-      comment: "",
-      author: "",
-      date: ""
-    };
+    $scope.input = { name:"", rating:"5", comment:""};
   };
 }])
 
@@ -146,16 +141,16 @@ angular.module('confusionApp')
   $scope.featuredDish = {};
   $scope.showDish = false;
   $scope.message = "Loading ...";
-  menuFactory.getDish(0)
-  .then(
-    function(response){
-      $scope.featuredDish = response.data;
+  $scope.featuredDish = menuFactory.getDishes().get({id:0}).$promise.then(
+    function(response) {
+      $scope.featuredDish = response;
       $scope.showDish = true;
     },
-    function(response) {
+    function(response){
       $scope.message = "Error: " + response.status + " " + response.statusText;
     }
   );
+
   $scope.promotion = menuFactory.getPromotion(0);
   $scope.executiveChef = corporateFactory.getLeader(3);
 }])
